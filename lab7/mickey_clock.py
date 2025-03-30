@@ -30,7 +30,7 @@ while during:
     
     screen.blit(mainclock , (0,0))
     
-    
+                    
     rotated_rightarm = pygame.transform.rotate(pygame.transform.scale(r_arm, (800, 600)), -t_min_angl)
     rightarmrect = rotated_rightarm.get_rect(center=(800 // 2, 600 // 2 + 12))
     screen.blit(rotated_rightarm, rightarmrect)
