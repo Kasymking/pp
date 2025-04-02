@@ -14,23 +14,23 @@ LINE_CORDS = (130, 210, 290, 375)#(125, 180, 235, 290)
 score = 0
 
 # IMAGES
-img_icon = pygame.image.load('lab8/race/images/1.png') # Logo
+img_icon = pygame.image.load('lab9/race/images/1.png') # Logo
 
 pygame.display.set_icon(img_icon)
 
-img_road = pygame.image.load('lab8/race/images/road.png') # Background (Road)
-img_player = pygame.image.load('lab8/race/images/player.png') # Player
-img_coin = pygame.image.load('lab8/race/images/1.png') # Coin
-img_enemy = pygame.image.load('lab8/race/images/enemycar.png')  # Enemy
+img_road = pygame.image.load('lab9/race/images/road.png') # Background (Road)
+img_player = pygame.image.load('lab9/race/images/player.png') # Player
+img_coin = pygame.image.load('lab9/race/images/1.png') # Coin
+img_enemy = pygame.image.load('lab9/race/images/enemycar.png')  # Enemy
 
 # SOUNDS
-sound_crash = pygame.mixer.Sound('lab8/race/sounds/crash.wav')
+sound_crash = pygame.mixer.Sound('lab9/race/sounds/crash.wav')
 sound_crash.set_volume(0.1)
 
-sound_coin = pygame.mixer.Sound('lab8/race/sounds/coin.mp3')
+sound_coin = pygame.mixer.Sound('lab9/race/sounds/coin.mp3')
 sound_coin.set_volume(0.05)
 
-sound_bg = pygame.mixer.Sound('lab8/race/sounds/bg.mp3')
+sound_bg = pygame.mixer.Sound('lab9/race/sounds/bg.mp3')
 sound_bg.set_volume(0.1)
 
 channel_coin = pygame.mixer.Channel(0)
@@ -180,7 +180,6 @@ coin_sprites = pygame.sprite.Group(coin1, coin2, coin3)
 # FPS
 clock = pygame.time.Clock()
 FPS = 120
-
 # Flags
 running = True
 game_over = False  
@@ -230,16 +229,11 @@ while running:
                 collided_coin.generate_random_rect()
 
         # Display Score
-        font_score = pygame.font.Font("lab8/race/fonts/VT323-Regular.ttf", 36)
+        font_score = pygame.font.Font("lab9/race/fonts/VT323-Regular.ttf", 36)
         text = font_score.render(f" Score: {score} ", True, (255, 255, 255), (240, 160, 55))
         font_score_rect = text.get_rect()
         screen.blit(text, (WIDTH - font_score_rect.w, 0))
 
-        # Display Speed
-        # font_speed = pygame.font.Font("Labs/Lab8/Racer/fonts/VT323-Regular.ttf", 36)
-        # text_speed = font_speed.render(f" Speed: {player.speed:.2f} ", True, (255, 255, 255), (240, 160, 55))
-        # font_speed_rect = text_speed.get_rect()
-        # screen.blit(text_speed, (0, 0))
 
     
     # Game Over Screen
@@ -252,12 +246,12 @@ while running:
 
         screen.fill("red")
 
-        font_GO = pygame.font.Font("Labs/Lab8/Racer/fonts/VT323-Regular.ttf", 50)
+        font_GO = pygame.font.Font("lab9/race/fonts/VT323-Regular.ttf", 50)
         text_gameOver = font_GO.render("Game Over!", True, (255, 255, 255))
         text_rect = text_gameOver.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         screen.blit(text_gameOver, text_rect)
 
-        font_restart = pygame.font.Font("Labs/Lab8/Racer/fonts/VT323-Regular.ttf", 25)
+        font_restart = pygame.font.Font("lab9/race/fonts/VT323-Regular.ttf", 25)
         text_restart = font_restart.render('Press "R" to Restart', True, (255, 255, 255))
         text_restart_rect = text_restart.get_rect(center=(WIDTH // 2, HEIGHT - 40))
         screen.blit(text_restart, text_restart_rect)
