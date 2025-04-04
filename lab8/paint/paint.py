@@ -1,91 +1,171 @@
 import pygame
 
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((640, 480))
-    clock = pygame.time.Clock()
-    
-    radius = 15
-    x = 0
-    y = 0
-    mode = 'blue'
-    points = []
-    
-    while True:
-        
-        pressed = pygame.key.get_pressed()
-        '''Метод pygame.key.get_pressed() возвращает список, в котором хранятся состояния всех клавиш на клавиатуре. 
-        Если клавиша нажата, её значение в списке равно True, иначе False.'''
-        
-        alt_held = pressed[pygame.K_LALT] or pressed[pygame.K_RALT]
-        #Если любая из этих клавиш нажата, переменная alt_held принимает значение True.
-        ctrl_held = pressed[pygame.K_LCTRL] or pressed[pygame.K_RCTRL]
-        
-        for event in pygame.event.get():
-            
-            # determin if X was clicked, or Ctrl+W or Alt+F4 was used
-            if event.type == pygame.QUIT:
-                return
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w and ctrl_held: 
-                    return
-                if event.key == pygame.K_F4 and alt_held:
-                    return
-                if event.key == pygame.K_ESCAPE:
-                    return
-            
-                # determine if a letter key was pressed
-                if event.key == pygame.K_r:
-                    mode = 'red'
-                elif event.key == pygame.K_g:
-                    mode = 'green'
-                elif event.key == pygame.K_b:
-                    mode = 'blue'
-            
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 3: # left click grows radius
-                    radius = min(200, radius + 1)
-                elif event.button == 1  : # right click shrinks radius
-                    radius = max(1, radius - 1)
-            
-            if event.type == pygame.MOUSEMOTION:
-                # if mouse moved, add point to list
-                position = event.pos
-                points = points + [position]
-                points = points[-256:]
-                
-        screen.fill((0, 0, 0))
-        
-        # draw all points
-        i = 0
-        while i < len(points) - 1:
-            drawLineBetween(screen, i, points[i], points[i + 1], radius, mode)
-            i += 1
-        
-        pygame.display.flip()
-        
-        clock.tick(60)
+pygame.init()
 
-def drawLineBetween(screen, index, start, end, width, color_mode):
-    c1 = max(0, min(255, 2 * index - 256))
-    c2 = max(0, min(255, 2 * index))
-    
-    if color_mode == 'blue':
-        color = (c1, c1, c2)
-    elif color_mode == 'red':
-        color = (c2, c1, c1)
-    elif color_mode == 'green':
-        color = (c1, c2, c1)
-    
-    dx = start[0] - end[0]
-    dy = start[1] - end[1]
-    iterations = max(abs(dx), abs(dy))
-    
-    for i in range(iterations):
-        progress = 1.0 * i / iterations
-        aprogress = 1 - progress
-        x = int(aprogress * start[0] + progress * end[0])
-        y = int(aprogress * start[1] + progress * end[1])
-        pygame.draw.circle(screen, color, (x, y), width)
+# BASE SETTINGS
+WIDTH, HEIGHT = 1000, 800
+TOOLBAR_HEIGHT = 100
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('Paint')
+screen.fill((255, 255, 255)) 
+base_layer = pygame.Surface((WIDTH, HEIGHT))
+base_layer.fill((255, 255, 255))  # White background for the canvas
+clock = pygame.time.Clock()
 
-main()
+
+# COLORS
+colorRED = (255, 0, 0)
+colorGREEN = (0, 255, 0)
+colorBLUE = (0, 0, 255)
+colorWHITE = (255, 255, 255)
+colorBLACK = (0, 0, 0)
+colorYELLOW = (255, 255, 0)
+colorPURPLE = (128, 0, 128)
+colorORANGE = (255, 165, 0)
+colorPINK = (255, 192, 203)
+colors = [colorBLACK, colorRED, colorGREEN, colorBLUE, colorWHITE, colorYELLOW, colorPURPLE, colorORANGE, colorPINK]
+curr_color = colors[0]
+
+# TOOL SETTINGS
+thicknesses = [15, 5, 5, 5]  # [Eraser, Brush, Rectangle, Circle]
+mod = 1  # Current tool (default is Brush)
+LMBpressed = False
+
+# TOOLBAR (tools and colors)
+tools = ["Eraser", "Brush", "Rectangle","Circle"] 
+
+tool_buttons = [pygame.Rect(10 + i * 90, 5, 80, 40) if i <=3 else pygame.Rect(10 + (i-4) * 90, 55, 80, 40) for i in range(len(tools))]
+color_buttons = [pygame.Rect(WIDTH - 300 + i * 60, 5, 50, 40) if i <=4 else pygame.Rect(WIDTH - 300 + (i-5) * 60, 55, 50, 40) for i in range(len(colors))]
+
+# Initializing mouse coordinates
+mouse_x, mouse_y = pygame.mouse.get_pos()
+curr_x, curr_y = mouse_x, mouse_y
+prev_x, prev_y = mouse_x, mouse_y
+
+
+# Calculate rectangle coordinates from two points
+def calculate_rect(x1, y1, x2, y2):
+    return pygame.Rect(min(x1, x2), min(y1, y2), abs(x1 - x2), abs(y1 - y2))
+
+
+# FINCTION TO DRAW FIGURES
+def draw_figure(figure_index, surface):
+    if figure_index == 0:  # Eraser
+        pygame.draw.circle(surface, colorWHITE, (curr_x, curr_y), thicknesses[0] // 2)
+        pygame.draw.line(surface, colorWHITE, (prev_x, prev_y), (curr_x, curr_y), thicknesses[0])
+    elif figure_index == 1:  # Brush
+        pygame.draw.circle(surface, curr_color, (curr_x, curr_y), thicknesses[1] // 2)
+        pygame.draw.line(surface, curr_color, (prev_x, prev_y), (curr_x, curr_y), thicknesses[1])
+    elif figure_index == 2:  # Rectangle
+        pygame.draw.rect(surface, curr_color, calculate_rect(prev_x, prev_y, curr_x, curr_y), thicknesses[2])
+    elif figure_index == 3:
+        radius = int(((curr_x - prev_x)**2 + (curr_y - prev_y)**2)**0.5)
+        pygame.draw.circle(surface, curr_color, (prev_x, prev_y), radius, thicknesses[3])
+
+
+# FINCTION TO CLEAN CANVA
+def clear_screen():
+    base_layer.fill(colorWHITE)
+    screen.fill(colorWHITE)
+
+# TOOLBAR DRAWING
+def draw_toolbar():
+    # Draw toolbar background
+    pygame.draw.rect(screen, (200, 200, 200), (0, 0, WIDTH, TOOLBAR_HEIGHT))
+    
+    # Draw tool buttons
+    for i, rect in enumerate(tool_buttons):
+        color = (100, 100, 100) if mod == i else (150, 150, 150)
+        pygame.draw.rect(screen, color, rect, 0 , 7)
+        font = pygame.font.SysFont('Arial', 14)
+        text = font.render(tools[i], True, colorBLACK)
+        screen.blit(text, (rect.x + 5, rect.y + 12))
+    
+    # Draw color buttons
+    for i, rect in enumerate(color_buttons):
+        pygame.draw.rect(screen, colors[i], rect, 0, 7)
+        if curr_color == colors[i]:
+            pygame.draw.rect(screen, (100, 100, 100), rect, 2, 7)  # Highlight the selected color
+
+    # Show thickness
+    thickness_font = pygame.font.SysFont('Arial', 16)
+    thickness_text = thickness_font.render(f"Thickness: {thicknesses[mod]}", True, colorBLACK)
+    screen.blit(thickness_text, (WIDTH // 2-10, 30))
+
+running = True
+while running:
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+
+            # Checking tool buttons clicks
+            for i, button in enumerate(tool_buttons):
+                if button.collidepoint(event.pos):
+                    mod = i
+                    break
+        
+            # Checking color button clicks
+            for i, button in enumerate(color_buttons):
+                if button.collidepoint(event.pos):
+                    curr_color = colors[i]
+                    break
+
+
+            LMBpressed = True
+            curr_x, curr_y = event.pos
+            prev_x, prev_y = event.pos
+
+        if event.type == pygame.MOUSEMOTION and LMBpressed:
+            if mod in [0, 1]:  # Eraser and Brush draw immediately
+                prev_x, prev_y = curr_x, curr_y
+                curr_x, curr_y = event.pos
+                draw_figure(mod, base_layer)
+            elif mod in [2, 3, 4, 5, 6, 7]:  # Line and Rectangle are temporarily drawn on the screen
+                curr_x, curr_y = event.pos
+
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            LMBpressed = False
+            draw_figure(mod, base_layer)  # Fix the drawing on the canvas
+
+        if event.type == pygame.KEYDOWN: 
+            if event.key == pygame.K_e: mod = 0  # Eraser
+            if event.key == pygame.K_b: mod = 1  # Brush
+            if event.key == pygame.K_r: mod = 2  # Rectangle
+            if event.key == pygame.K_c: mod = 3  # Circle
+
+            if event.key == pygame.K_1: curr_color = colors[0] # Black
+            if event.key == pygame.K_2: curr_color = colors[1] # Red
+            if event.key == pygame.K_3: curr_color = colors[2] # Green
+            if event.key == pygame.K_4: curr_color = colors[3] # Blue
+            if event.key == pygame.K_5: curr_color = colors[4] # White
+            if event.key == pygame.K_6: curr_color = colors[5] # Yellow
+            if event.key == pygame.K_7: curr_color = colors[6] # Purple
+            if event.key == pygame.K_8: curr_color = colors[7] # Orange
+            if event.key == pygame.K_9: curr_color = colors[8] # Pink
+
+            if event.key == pygame.K_z:  # Clear screen with 'C' key
+                clear_screen()
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_KP_PLUS ] or keys[pygame.K_RIGHTBRACKET]:
+            # print("increased thickness")
+            if thicknesses[mod] <= 64:
+                thicknesses[mod] += 1
+        if keys[pygame.K_KP_MINUS]or keys[pygame.K_LEFTBRACKET]:
+            # print("reduced thickness")
+            if thicknesses[mod] >= 2:
+                thicknesses[mod] -= 1
+
+    screen.blit(base_layer, (0, 0))
+    
+    if LMBpressed and mod in [2, 3, 4, 5, 6, 7]:
+        draw_figure(mod, screen)
+
+    draw_toolbar()
+    pygame.display.flip()
+    clock.tick(60)   
+
+pygame.quit()

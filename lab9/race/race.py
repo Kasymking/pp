@@ -251,10 +251,6 @@ while running:
         text_rect = text_gameOver.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         screen.blit(text_gameOver, text_rect)
 
-        font_restart = pygame.font.Font("lab9/race/fonts/VT323-Regular.ttf", 25)
-        text_restart = font_restart.render('Press "R" to Restart', True, (255, 255, 255))
-        text_restart_rect = text_restart.get_rect(center=(WIDTH // 2, HEIGHT - 40))
-        screen.blit(text_restart, text_restart_rect)
 
         text_score = font_score.render(f"Score: {score}", True, (255, 255, 255))
         text_score_rect = text_score.get_rect(center=(WIDTH//2, HEIGHT//2 - 150))
@@ -264,29 +260,6 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             running = False
-        elif event.type == pygame.KEYDOWN and game_over:
-            if event.key == pygame.K_r:  # Restart game
-
-                # Resetting the game
-                game_over = False 
-
-                # Resetting the score
-                score = 0
-                
-                # Resetting the speed
-                player.scoref = score
-                player.speed = SPEED_START
-                road.speed = player.speed
-            
-                for enem in enemy_sprites: enem.speed = player.speed * SPEED_DIFFERENCE
-                for coin in coin_sprites: coin.speed = player.speed
-
-                # Resetting the entities
-                player.rect.centerx = WIDTH // 2
-                player.rect.bottom = player.bottom_pos
-                for en in enemy_sprites: en.generate_random_rect(enemy_sprites)
-                for coin in coin_sprites: coin.generate_random_rect()
-                
 
 # UPDATE
     pygame.display.flip() # updates the screen

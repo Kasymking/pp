@@ -151,28 +151,10 @@ while running:
         text_rect = text_gameOver.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         screen.blit(text_gameOver, text_rect)
 
-        font_restart = pygame.font.Font(None, 25)
-        text_restart = font_restart.render('Press "R" to Restart', True, (255, 255, 255))
-        text_restart_rect = text_restart.get_rect(center=(WIDTH // 2, HEIGHT - 40))
-        screen.blit(text_restart, text_restart_rect)
-
     # Handle events
     for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN and game_over:
-                if event.key == pygame.K_r:  # Restart game
-                    # Reset settings
-                    FPS = FPS_START
-                    score = 0
-                    lvl = 0
-                    game_over = False 
-
-                    # Recreate the snake and food
-                    snake = Snake()
-                    food = Food()  # Create new food (resets last_spawn_time)
-                snake.body = [Point(10, 11), Point(10, 12), Point(10, 13)]
-                snake.dx, snake.dy= 0, -1
 
             elif event.type == pygame.KEYDOWN and not game_over:
                  # Control snake with arrow keys or WASD
