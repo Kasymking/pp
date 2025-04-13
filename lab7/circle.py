@@ -18,7 +18,7 @@ running = True
 while running:
     screen.fill(WHITE)
     pygame.draw.circle(screen, RED, (ball_x, ball_y), ball_radius)
-    pygame.display.flip() 
+    pygame.display.update() 
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

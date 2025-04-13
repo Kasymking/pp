@@ -88,7 +88,9 @@ class Snake:
 
 # Food class
 class Food:
-    def __init__(self):
+    def __init__(self, disapper = True):
+        self.disapper = disapper
+        
         self.last_spawn_time = pygame.time.get_ticks() # Memory of Last Time  Spawn
         self.move(snake=None)
 
@@ -102,11 +104,14 @@ class Food:
 
             # Check that food does not appear in the snake's body
             if snake is None or self.pos not in snake.body:
-                self.last_spawn_time = pygame.time.get_ticks() # Updating the spawn timer
-                break
+                if self.disapper:
+                    self.last_spawn_time = pygame.time.get_ticks() # Updating the spawn timer
+                    break
 
     def draw(self):
         pygame.draw.rect(screen, colorGREEN, (self.pos.x * CELL, self.pos.y * CELL, CELL, CELL))
+
+
 
 # Game settings
 FPS = FPS_START
@@ -123,7 +128,6 @@ while running:
     if not game_over:
         if pygame.time.get_ticks() - food.last_spawn_time > 10000:
             food.move(snake)
-
         draw_grid_chess()
         game_over = snake.move()
         snake.check_collision(food)
@@ -176,16 +180,16 @@ while running:
 
             elif event.type == pygame.KEYDOWN and not game_over:
                  # Control snake with arrow keys or WASD
-                if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+                if event.key == pygame.K_RIGHT:
                     snake.dx = 1
                     snake.dy = 0
-                elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                elif event.key == pygame.K_LEFT:
                     snake.dx = -1
                     snake.dy = 0
-                elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
+                elif event.key == pygame.K_DOWN:
                     snake.dx = 0
                     snake.dy = 1
-                elif event.key == pygame.K_UP or event.key == pygame.K_w:
+                elif event.key == pygame.K_UP:
                     snake.dx = 0
                     snake.dy = -1
 

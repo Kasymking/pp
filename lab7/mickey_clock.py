@@ -12,7 +12,7 @@ r_arm = pygame.image.load("lab7/rightarm.png")
 l_arm = pygame.image.load("lab7/leftarm.png")
 mainclock = pygame.transform.scale(img,(800,600))
 
-clock = pygame.time.Clock()
+clock = pygame.time.Clock() 
 # print(t_min)
 # print(curr_time)
 
